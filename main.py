@@ -5,7 +5,7 @@ import json, geojson
 import pprint #Pretty Print
 import datetime, time
 #User Defined Classes
-import colorz
+from colorz import colorz
 from earthquake import earthquake
 
 def consoleLog(geoJsonData):
@@ -15,9 +15,9 @@ def consoleLog(geoJsonData):
 #Should have args that select which feed to use. 
 #API Doc http://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
 #All Hour
-url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson';
+#url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson';
 #All Day
-#url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson';
+url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson';
 #r = requests.get(url);
 #data = r.json()
 
@@ -35,9 +35,11 @@ while(1):
 		#Pretty Print
 		pp = pprint.PrettyPrinter(indent=4)
 		pp.pprint(data);
-
+	print("---------------------------------------------------------------------");
 	for quake in data['features']:
 		eq = earthquake(quake)	
+		eq.printQuake();
+	print("---------------------------------------------------------------------\n\n");
 	#Time between steps
-	time.sleep(5);
+	time.sleep(60);
 	

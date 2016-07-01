@@ -1,7 +1,12 @@
 #!/usr/local/bin/python3
 import http.client as httplib
 import json, geojson
+from colorz import colorz
+#from colorama import init
+#from termcolor import colored
 
+#Uncomment if using colorama or termcolor
+#init();
 
 #COLOR DEFINITION
 class earthquake:
@@ -77,4 +82,11 @@ class earthquake:
 		self.id			= jsonData['id'];
 
 
-		print("Created Earthquake:",self.id);
+		#print("Created Earthquake:",self.id);
+	
+	def printQuake(self):
+		print(colorz.scale(self.magnitude),"--->",self.title);
+		#print("{0:25} {1:4} {2:64}".format(colorz.scale(self.magnitude),"--->",self.title));
+		#print("   >",self.type);
+		#print("   >",colorz.scale(self.magnitude));
+
