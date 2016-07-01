@@ -12,6 +12,7 @@ class colorz:
 	ENDC = '\033[0m'
 	BOLD = '\033[1m'
 	UNDERLINE = '\033[4m'
+	DEFAULT = '\033[39;49m';
 
 	#Scale Background Colors
 	#\EscapeCharacter[TextFormat; Text Color; background Color m
@@ -33,12 +34,24 @@ class colorz:
 	def pretty(text,color):
 		if(color=='red'):
 			return colorz.BOLD+colorz.FAIL+text+colorz.ENDC
+		elif(color=='redWARN'):
+			return '\033[1;5;93;101m'+text+colorz.ENDC
 		elif (color=='green'):
 			return colorz.OKGREEN + text + colorz.ENDC;
 		elif (color=='yellow'):
 			return colorz.WARNING + text + colorz.ENDC;
+		
+		elif (color=='redBG'):
+			return '\033[1;101m'+text + colorz.ENDC;
+		elif (color=='orangeBG'):
+			return '\033[1;101m'+text + colorz.ENDC;
+		elif (color=='yellowBG'):
+			return '\033[1;101m'+text + colorz.ENDC;
+		elif (color=='greenBG'):
+			return '\033[1;101m'+text + colorz.ENDC;
 		else:
-			return text;
+			return colorz.DEFAULT + text + colorz.ENDC;
+
 
 	def scale(numericValue):
 		val=int(numericValue)

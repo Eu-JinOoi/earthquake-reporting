@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3
 import http.client as httplib
 import json, geojson
+import datetime
 from colorz import colorz
 #from colorama import init
 #from termcolor import colored
@@ -59,7 +60,7 @@ class earthquake:
 		self.felt		= jsonData['properties']['felt'];
 		self.cdi		= jsonData['properties']['cdi'];
 		self.mmi		= jsonData['properties']['mmi'];
-		self.alert		= jsonData['properties']['alert'];
+		self.alert		= jsonData['properties']['alert'];		#This field is typcially null
 		self.status		= jsonData['properties']['status'];
 		self.tsunami		= jsonData['properties']['tsunami'];
 		self.sig		= jsonData['properties']['sig'];
@@ -85,8 +86,27 @@ class earthquake:
 		#print("Created Earthquake:",self.id);
 	
 	def printQuake(self):
-		print(colorz.scale(self.magnitude),"--->",self.title);
-		#print("{0:25} {1:4} {2:64}".format(colorz.scale(self.magnitude),"--->",self.title));
-		#print("   >",self.type);
-		#print("   >",colorz.scale(self.magnitude));
-
+		if(self.magnitude!=None):
+			print(
+				colorz.scale(self.magnitude),
+				datetime.datetime.fromtimestamp(int(str(self.time)[:-3])).strftime('%Y-%m-%d %H:%M:%S').ljust(20),
+				self.formatType().ljust(5),
+				self.tsunamiFormat().ljust(9),	
+				self.title.ljust(128)
+			);
+	def formatType(self):
+		if (self.type == 'earthquake'):
+			return colorz.pretty("EQ",'default');
+		elif (self.type == 'explosion'):
+			return colorz.pretty("EX",'yellow');
+		elif (self.type == 'quarry blast'):
+			return colorz.pretty("QB",'yellow');
+		else:
+			return colorz.pretty("UK",'yellow');
+	def tsunamiFormat(self):
+		if(self.tsunami != 0):
+			return colorz.pretty("TSUNAMI","redWARN")
+		else:
+			return colorz.pretty("       ","default")
+	def alertFormat(self):
+		return colorz.pretty(self.alert,self.alert+"BG")
