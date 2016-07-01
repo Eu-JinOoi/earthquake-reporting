@@ -6,6 +6,7 @@ import pprint #Pretty Print
 import datetime, time
 #User Defined Classes
 import colorz
+from earthquake import earthquake
 
 def consoleLog(geoJsonData):
 	print(geoJsonData['metadata']['count']);
@@ -34,6 +35,9 @@ while(1):
 		#Pretty Print
 		pp = pprint.PrettyPrinter(indent=4)
 		pp.pprint(data);
-	consoleLog(data);	
+
+	for quake in data['features']:
+		eq = earthquake(quake)	
+	#Time between steps
 	time.sleep(5);
 	
