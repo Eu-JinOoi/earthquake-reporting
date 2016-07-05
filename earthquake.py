@@ -2,6 +2,7 @@
 import http.client as httplib
 import json, geojson
 import datetime
+import pymysql
 from colorz import colorz
 #from colorama import init
 #from termcolor import colored
