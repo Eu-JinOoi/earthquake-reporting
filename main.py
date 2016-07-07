@@ -16,6 +16,7 @@ def consoleLog(geoJsonData):
 def main():
 	#Curses
 	scr = curses.initscr();
+	curses.start_color();
 	#curses.noecho();
 	#curses.cbreak();
 	#scr.keypad(True);
@@ -40,9 +41,9 @@ if '?' in sys.argv:
 #Should have args that select which feed to use. 
 #API Doc http://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
 #All Hour
-url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson';
+#url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson';
 #All Day
-#url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson';
+url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson';
 #All Week
 #url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson';
 #All Month
@@ -61,6 +62,12 @@ while(1):
 		pp = pprint.PrettyPrinter(indent=4)
 		pp.pprint(data);
 	count = 0;
+	
+	curses.update_lines_cols();
+	screenSize=scr.getmaxyx();
+	scr.resize(screenSize[0],screenSize[1]);
+	maxQuakes=screenSize[0]-1;
+
 	#print("---------------------------------------------------------------------");
 	for quake in data['features']:
 		if(debug == True):
@@ -68,12 +75,16 @@ while(1):
 			pp.pprint(quake);
 		eq = earthquake(quake)	
 		#eq.curseQuake(scr,count);
-		scr.addstr(count,0,str(quake['properties']['title']));
+		scr.addstr(count,0,str(quake['properties']['mag']))
+		scr.addstr(count,6,str(quake['properties']['title']));
 		count+=1;
+		if(count >=maxQuakes):
+			break;
 	#	if(count>20):
 	#		break;
 	scr.addstr(count,0,"Last update: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
 	scr.refresh();
+	scr.erase();
 	#print("---------------------------------------------------------------------\n");
 	#Time between steps
 	time.sleep(60);
