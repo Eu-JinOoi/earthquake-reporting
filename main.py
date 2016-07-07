@@ -4,7 +4,7 @@ import requests
 import json, geojson
 import pprint #Pretty Print
 import datetime, time
-import sys
+import sys, signal
 import curses
 #User Defined Classes
 from colorz import colorz
@@ -12,7 +12,11 @@ from earthquake import earthquake
 
 def consoleLog(geoJsonData):
 	print(geoJsonData['metadata']['count']);
-
+def signal_handler(signal, frame):
+	#Want to clean up CTRL+C action
+	curses.reset_shell_mode();
+	print();
+	sys.exit(0);
 def main():
 	#Curses
 	scr = curses.initscr();
@@ -24,7 +28,8 @@ def main():
 	#curses.echo();
 	#curses.nocbreak;
 
-
+#Handle CTRL+C
+signal.signal(signal.SIGINT, signal_handler);
 #Program Arguments
 if 'debug' in sys.argv:
 	debug = True;
