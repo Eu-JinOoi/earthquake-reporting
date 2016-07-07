@@ -74,21 +74,21 @@ while(1):
 			print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 			pp.pprint(quake);
 		eq = earthquake(quake)	
+		tsunami=" - - - ";
+		if(quake['properties']['tsunami']==1):
+			tsunami='TSUNAMI'
 		#eq.curseQuake(scr,count);
 		scr.addstr(count,0,str(quake['properties']['mag']))
-		scr.addstr(count,6,str(quake['properties']['title']));
+		scr.addstr(count,5,datetime.datetime.fromtimestamp(int(str(quake['properties']['time'])[:-3])).strftime('%Y-%m-%d %H:%M:%S'))
+		scr.addstr(count,25,tsunami);
+		scr.addstr(count,32,str(quake['properties']['title']));
 		count+=1;
 		if(count >=maxQuakes):
 			break;
-	#	if(count>20):
-	#		break;
 	scr.addstr(count,0,"Last update: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
 	scr.refresh();
 	scr.erase();
 	#print("---------------------------------------------------------------------\n");
 	#Time between steps
 	time.sleep(60);
-#	for i in range(0,24):
-#		sys.stdout.write('\r');
-
 
