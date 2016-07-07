@@ -5,12 +5,24 @@ import json, geojson
 import pprint #Pretty Print
 import datetime, time
 import sys
+import curses
 #User Defined Classes
 from colorz import colorz
 from earthquake import earthquake
 
 def consoleLog(geoJsonData):
 	print(geoJsonData['metadata']['count']);
+
+def main():
+	#Curses
+	scr = curses.initscr();
+	#curses.noecho();
+	#curses.cbreak();
+	#scr.keypad(True);
+	#scr.keypad(False);	
+	#curses.echo();
+	#curses.nocbreak;
+
 
 #Program Arguments
 if 'debug' in sys.argv:
@@ -39,6 +51,8 @@ url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson';
 #Pretty Print
 pp = pprint.PrettyPrinter(indent=4)
 
+#main();
+scr = curses.initscr();
 while(1):
 	r = requests.get(url);
 	data = r.json()
@@ -47,19 +61,23 @@ while(1):
 		pp = pprint.PrettyPrinter(indent=4)
 		pp.pprint(data);
 	count = 0;
-	print("---------------------------------------------------------------------");
+	#print("---------------------------------------------------------------------");
 	for quake in data['features']:
 		if(debug == True):
 			print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 			pp.pprint(quake);
 		eq = earthquake(quake)	
-		eq.printQuake();
+		#eq.curseQuake(scr,count);
+		scr.addstr(count,0,str(quake['properties']['title']));
 		count+=1;
 	#	if(count>20):
 	#		break;
-	print("---------------------------------------------------------------------\n");
+	scr.addstr(count,0,"Last update: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
+	scr.refresh();
+	#print("---------------------------------------------------------------------\n");
 	#Time between steps
 	time.sleep(60);
 #	for i in range(0,24):
 #		sys.stdout.write('\r');
-	
+
+

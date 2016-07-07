@@ -95,6 +95,9 @@ class earthquake:
 				self.tsunamiFormat().ljust(9),	
 				self.title.ljust(128)
 			);
+	def curseQuake(self,scr,index):
+		if(self.magnitude!=None):
+			scr.addstr(index,0,self.title);	
 	def formatType(self):
 		if (self.type == 'earthquake'):
 			return colorz.pretty("EQ",'default');
