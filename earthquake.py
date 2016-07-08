@@ -95,9 +95,18 @@ class earthquake:
 				self.tsunamiFormat().ljust(9),	
 				self.title.ljust(128)
 			);
-	def curseQuake(self,scr,index):
+	def curseQuake(self,scr,count):
 		if(self.magnitude!=None):
-			scr.addstr(index,0,self.title);	
+			tsunami = '- - - -';
+			if(self.tsunami==1):
+				tsunami = 'TSUNAMI'		
+
+
+			scr.addstr(count,0,str(self.magnitude));
+			scr.addstr(count,5,datetime.datetime.fromtimestamp(int(str(self.time)[:-3])).strftime('%Y-%m-%d %H:%M:%S'))
+			scr.addstr(count,25,tsunami);
+			scr.addstr(count,33,str(self.title));
+
 	def formatType(self):
 		if (self.type == 'earthquake'):
 			return colorz.pretty("EQ",'default');

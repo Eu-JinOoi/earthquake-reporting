@@ -73,7 +73,6 @@ while(1):
 	scr.resize(screenSize[0],screenSize[1]);
 	maxQuakes=screenSize[0]-1;
 
-	#print("---------------------------------------------------------------------");
 	for quake in data['features']:
 		if(debug == True):
 			print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
@@ -82,18 +81,13 @@ while(1):
 		tsunami=" - - - ";
 		if(quake['properties']['tsunami']==1):
 			tsunami='TSUNAMI'
-		#eq.curseQuake(scr,count);
-		scr.addstr(count,0,str(quake['properties']['mag']))
-		scr.addstr(count,5,datetime.datetime.fromtimestamp(int(str(quake['properties']['time'])[:-3])).strftime('%Y-%m-%d %H:%M:%S'))
-		scr.addstr(count,25,tsunami);
-		scr.addstr(count,32,str(quake['properties']['title']));
+		eq.curseQuake(scr,count);
 		count+=1;
 		if(count >=maxQuakes):
 			break;
 	scr.addstr(count,0,"Last update: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
 	scr.refresh();
 	scr.erase();
-	#print("---------------------------------------------------------------------\n");
 	#Time between steps
 	time.sleep(60);
 
