@@ -78,9 +78,6 @@ while(1):
 			print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 			pp.pprint(quake);
 		eq = earthquake(quake)	
-		tsunami=" - - - ";
-		if(quake['properties']['tsunami']==1):
-			tsunami='TSUNAMI'
 		eq.curseQuake(scr,count);
 		count+=1;
 		if(count >=maxQuakes):
