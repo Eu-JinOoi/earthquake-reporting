@@ -3,6 +3,7 @@ import http.client as httplib
 import json, geojson
 import datetime
 import pymysql
+import curses
 from colorz import colorz
 #from colorama import init
 #from termcolor import colored
@@ -10,7 +11,6 @@ from colorz import colorz
 #Uncomment if using colorama or termcolor
 #init();
 
-#COLOR DEFINITION
 class earthquake:
 	
 	#properties
@@ -96,17 +96,36 @@ class earthquake:
 				self.title.ljust(128)
 			);
 	def curseQuake(self,scr,count):
+		earthquake.registerColors();
 		if(self.magnitude!=None):
-			tsunami = '- - - -';
-			if(self.tsunami==1):
-				tsunami = 'TSUNAMI'		
-
-
-			scr.addstr(count,0,str(self.magnitude));
-			scr.addstr(count,5,datetime.datetime.fromtimestamp(int(str(self.time)[:-3])).strftime('%Y-%m-%d %H:%M:%S'))
-			scr.addstr(count,25,tsunami);
-			scr.addstr(count,33,str(self.title));
-
+			#Magnitude
+			cp = self.magToColor();
+			scr.addstr(count,0,"{:5}".format(str(self.magnitude)),curses.color_pair(cp));
+			#Timestamp
+			scr.addstr(count,6,datetime.datetime.fromtimestamp(int(str(self.time)[:-3])).strftime('%Y-%m-%d %H:%M:%S'))
+			#Tsunami
+			if(self.tsunami == 1):
+				scr.addstr(count,26,"TSUNAMI",curses.color_pair(11) | curses.A_BLINK);
+			else:
+				scr.addstr(count,26,"~ ~ ~ ~");
+			#Title
+			scr.addstr(count,34,str(self.title));
+	def registerColors():
+		curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_GREEN);#0-3
+		curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_YELLOW);#4-5
+		curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_MAGENTA);#6-7
+		curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_RED);#8-10
+		
+		curses.init_pair(11, curses.COLOR_WHITE, curses.COLOR_RED);
+	def magToColor(self):
+		if(int(self.magnitude) < 3):
+			return 1;
+		elif(int(self.magnitude) < 6):
+			return 2;
+		elif(int(self.magnitude) < 8):
+			return 3;
+		else:
+			return 4;
 	def formatType(self):
 		if (self.type == 'earthquake'):
 			return colorz.pretty("EQ",'default');
