@@ -109,8 +109,8 @@ class earthquake:
 				scr.addstr(count,29,"TSUNAMI",curses.color_pair(11) | curses.A_BLINK);
 			else:
 				scr.addstr(count,29,"~ ~ ~ ~");
-			#Title
-			scr.addstr(count,37,str(self.title));
+			#Place
+			scr.addstr(count,37,str(self.place));
 	def registerColors():
 		curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_GREEN);#0-3
 		curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_YELLOW);#4-5
