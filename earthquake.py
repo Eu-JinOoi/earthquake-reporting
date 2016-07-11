@@ -5,14 +5,6 @@ import datetime
 import pymysql
 import curses
 from colorz import colorz
-#from colorama import init
-#from termcolor import colored
-
-#Uncomment if using colorama or termcolor
-#init();
-
-
-
 
 class earthquake:
 	

@@ -19,7 +19,6 @@ def signal_handler(signal, frame):
 def run(scr,debug,dataSet):
 	curses.start_color();
 	curses.use_default_colors();
-	#Should have args that select which feed to use. 
 	#API Doc http://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
 	url='';
 	if(dataSet == 'hour'):
@@ -34,9 +33,6 @@ def run(scr,debug,dataSet):
 	elif(dataSet == 'month'):
 		#All Month
 		url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson';
-
-	#Pretty Print
-	#pp = pprint.PrettyPrinter(indent=4)
 	while(1):
 		r = requests.get(url);
 		data = r.json()
