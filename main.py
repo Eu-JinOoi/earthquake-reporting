@@ -29,11 +29,7 @@ def run(scr,args):
 	url='';
 	data='';
 	#Process Arguments
-	dataSet='';
-	if(isinstance(args.range,list)):
-		dataSet=args.range[0];
-	else:
-		dataSet=args.range;
+	dataSet=args.range;
 
 	if(dataSet == 'hour'):
 		#All Hour
@@ -51,11 +47,7 @@ def run(scr,args):
 		#Set not specified
 		return args.range;
 	#Argument - limit
-	limit=0;
-	if(isinstance(args.range,int)):
-		limit=int(args.limit);
-	else:
-		limit=int(args.limit[0]);
+	limit=args.limit
 	if(limit <= 0):
 		limit = math.inf;
 	curlCount=0;
@@ -93,8 +85,8 @@ def run(scr,args):
 signal.signal(signal.SIGINT, signal_handler);
 #Process Arguments
 parser = argparse.ArgumentParser(description = "Earthquake Data Parameter Parser");
-parser.add_argument('--range', nargs=1, choices = ['hour','day','week','month'], default = "day");
-parser.add_argument('--limit', nargs=1, type = check_limit_value, default=-1);
+parser.add_argument('--range', choices = ['hour','day','week','month'], default = "day");
+parser.add_argument('--limit', type = check_limit_value, default=-1);
 args=parser.parse_args();
 print(args);
 
