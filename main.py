@@ -21,6 +21,7 @@ def run(scr,debug,dataSet):
 	curses.use_default_colors();
 	#API Doc http://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
 	url='';
+	data='';
 	if(dataSet == 'hour'):
 		#All Hour
 		url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson';
@@ -52,7 +53,7 @@ def run(scr,debug,dataSet):
 		scr.refresh();
 		scr.erase();
 		#Time between steps
-		time.sleep(10);
+		time.sleep(30);
 
 #_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 #Our Main Program

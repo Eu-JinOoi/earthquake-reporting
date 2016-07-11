@@ -78,9 +78,6 @@ class earthquake:
 		#id
 		self.id			= jsonData['id'];
 
-
-		#print("Created Earthquake:",self.id);
-	
 	def printQuake(self):
 		if(self.magnitude!=None):
 			print(
@@ -98,20 +95,30 @@ class earthquake:
 			scr.addstr(count,0,"{:5}".format(str(self.magnitude)),curses.color_pair(cp));
 			#Timestamp
 			scr.addstr(count,6,datetime.datetime.fromtimestamp(int(str(self.time)[:-3])).strftime('%Y-%m-%d %H:%M:%S'))
+			#Type
+			if(self.type == 'earthquake'):
+				scr.addstr(count,26,"EQ");
+			elif(self.type == 'quarry blast'):
+				scr.addstr(count,26,'QB', curses.color_pair(5));
+			elif(self.type == 'explosion'):
+				scr.addstr(count,26,'EX', curses.color_pair(5));
+			else:
+				scr.addstr(count,26,'UK', curses.color_pair(5));
 			#Tsunami
 			if(self.tsunami == 1):
-				scr.addstr(count,26,"TSUNAMI",curses.color_pair(11) | curses.A_BLINK);
+				scr.addstr(count,29,"TSUNAMI",curses.color_pair(11) | curses.A_BLINK);
 			else:
-				scr.addstr(count,26,"~ ~ ~ ~");
+				scr.addstr(count,29,"~ ~ ~ ~");
 			#Title
-			scr.addstr(count,34,str(self.title));
+			scr.addstr(count,37,str(self.title));
 	def registerColors():
 		curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_GREEN);#0-3
 		curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_YELLOW);#4-5
 		curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_MAGENTA);#6-7
 		curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_RED);#8-10
-		
+		curses.init_pair(5, curses.COLOR_YELLOW, curses.COLOR_BLACK);#8-10
 		curses.init_pair(11, curses.COLOR_WHITE, curses.COLOR_RED);
+
 	def magToColor(self):
 		if(int(self.magnitude) < 3):
 			return 1;
@@ -121,15 +128,7 @@ class earthquake:
 			return 3;
 		else:
 			return 4;
-	def formatType(self):
-		if (self.type == 'earthquake'):
-			return colorz.pretty("EQ",'default');
-		elif (self.type == 'explosion'):
-			return colorz.pretty("EX",'yellow');
-		elif (self.type == 'quarry blast'):
-			return colorz.pretty("QB",'yellow');
-		else:
-			return colorz.pretty("UK",'yellow');
+
 	def tsunamiFormat(self):
 		if(self.tsunami != 0):
 			return colorz.pretty("TSUNAMI","redWARN")
