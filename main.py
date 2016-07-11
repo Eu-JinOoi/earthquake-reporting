@@ -34,26 +34,33 @@ def run(scr,debug,dataSet):
 	elif(dataSet == 'month'):
 		#All Month
 		url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson';
+	curlCount=0;
+	startTime = int(time.time());
+	lastTime = 0;
+	interval = 300;
 	while(1):
-		r = requests.get(url);
-		data = r.json()
-		count = 0;
-		
-		curses.update_lines_cols();
-		screenSize=scr.getmaxyx();
-		scr.resize(screenSize[0],screenSize[1]);
-		maxQuakes=screenSize[0]-2;
-		for quake in data['features']:
-			eq = earthquake(quake)	
-			eq.curseQuake(scr,count+1);
-			count+=1;
-			if(count >=maxQuakes):
-				break;
-		scr.addstr(count+1,0,"Last update: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
-		scr.refresh();
-		scr.erase();
-		#Time between steps
-		time.sleep(30);
+		currTime=int(time.time());
+		if((currTime - lastTime) > interval):
+			r = requests.get(url);
+			curlCount+=1;
+			lastTime=int(time.time());
+			data = r.json()
+			count = 0;
+			
+			curses.update_lines_cols();
+			screenSize=scr.getmaxyx();
+			scr.resize(screenSize[0],screenSize[1]);
+			maxQuakes=screenSize[0]-2;
+			for quake in data['features']:
+				eq = earthquake(quake)	
+				eq.curseQuake(scr,count+1);
+				count+=1;
+				if(count >=maxQuakes):
+					break;
+			scr.addstr(count+1,50,"Curl Requests: "+str(curlCount));
+			scr.addstr(count+1,0,"Last update: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
+			scr.refresh();
+			scr.erase();
 
 #_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 #Our Main Program
