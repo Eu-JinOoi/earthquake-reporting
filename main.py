@@ -7,6 +7,7 @@ import datetime, time
 import sys, signal
 import curses
 import argparse
+import math
 #User Defined Classes
 from colorz import colorz
 from earthquake import earthquake
@@ -17,17 +18,22 @@ def signal_handler(signal, frame):
 	print("\nJust because of that, the big one is going to hit now...");
 	sys.exit(0);
 	
+def check_limit_value(value):
+	if(int(value)<0):
+		raise argparse.ArgumentTypeError("You must enter a positive number for the limit. Entering 0 is the same as not specifying an argument.");
+	return int(value);
 def run(scr,args):
 	curses.start_color();
 	curses.use_default_colors();
 	#API Doc http://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
 	url='';
 	data='';
+	#Process Arguments
 	dataSet='';
-	if(isinstance(args.range,str)):
-		dataSet=args.range;
-	else:
+	if(isinstance(args.range,list)):
 		dataSet=args.range[0];
+	else:
+		dataSet=args.range;
 
 	if(dataSet == 'hour'):
 		#All Hour
@@ -43,7 +49,15 @@ def run(scr,args):
 		url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson';
 	else:
 		#Set not specified
-		return type(args.range);
+		return args.range;
+	#Argument - limit
+	limit=0;
+	if(isinstance(args.range,int)):
+		limit=int(args.limit);
+	else:
+		limit=int(args.limit[0]);
+	if(limit <= 0):
+		limit = math.inf;
 	curlCount=0;
 	startTime = int(time.time());
 	lastTime = 0;
@@ -65,7 +79,7 @@ def run(scr,args):
 				eq = earthquake(quake)	
 				eq.curseQuake(scr,count+1);
 				count+=1;
-				if(count >=maxQuakes):
+				if(count >=maxQuakes or count>=limit):
 					break;
 			scr.addstr(count+1,50,"Curl Requests: "+str(curlCount));
 			scr.addstr(count+1,0,"Last update: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
@@ -80,22 +94,9 @@ signal.signal(signal.SIGINT, signal_handler);
 #Process Arguments
 parser = argparse.ArgumentParser(description = "Earthquake Data Parameter Parser");
 parser.add_argument('--range', nargs=1, choices = ['hour','day','week','month'], default = "day");
-parser.add_argument('--limit', nargs=1, type = int);
+parser.add_argument('--limit', nargs=1, type = check_limit_value, default=-1);
 args=parser.parse_args();
 print(args);
-
-#Program Arguments
-if 'debug' in sys.argv:
-	debug = True;
-else:
-	debug = False;
-if '>' in sys.argv:
-	minValue=0;
-if '?' in sys.argv:
-	print ("Parameters	Value");
-	print ("debug		Displays debug data");
-	print ("?		Displays this menu");
-	exit();	
 
 print(curses.wrapper(run,args));
 
