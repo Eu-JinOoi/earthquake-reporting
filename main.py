@@ -6,6 +6,7 @@ import pprint #Pretty Print
 import datetime, time
 import sys, signal
 import curses
+import argparse
 #User Defined Classes
 from colorz import colorz
 from earthquake import earthquake
@@ -16,12 +17,18 @@ def signal_handler(signal, frame):
 	print("\nJust because of that, the big one is going to hit now...");
 	sys.exit(0);
 	
-def run(scr,debug,dataSet):
+def run(scr,args):
 	curses.start_color();
 	curses.use_default_colors();
 	#API Doc http://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
 	url='';
 	data='';
+	dataSet='';
+	if(isinstance(args.range,str)):
+		dataSet=args.range;
+	else:
+		dataSet=args.range[0];
+
 	if(dataSet == 'hour'):
 		#All Hour
 		url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson';
@@ -34,6 +41,9 @@ def run(scr,debug,dataSet):
 	elif(dataSet == 'month'):
 		#All Month
 		url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson';
+	else:
+		#Set not specified
+		return type(args.range);
 	curlCount=0;
 	startTime = int(time.time());
 	lastTime = 0;
@@ -67,6 +77,13 @@ def run(scr,debug,dataSet):
 
 #Handle CTRL+C
 signal.signal(signal.SIGINT, signal_handler);
+#Process Arguments
+parser = argparse.ArgumentParser(description = "Earthquake Data Parameter Parser");
+parser.add_argument('--range', nargs=1, choices = ['hour','day','week','month'], default = "day");
+parser.add_argument('--limit', nargs=1, type = int);
+args=parser.parse_args();
+print(args);
+
 #Program Arguments
 if 'debug' in sys.argv:
 	debug = True;
@@ -80,6 +97,5 @@ if '?' in sys.argv:
 	print ("?		Displays this menu");
 	exit();	
 
-dataSet='day';
+print(curses.wrapper(run,args));
 
-curses.wrapper(run,debug,dataSet);
