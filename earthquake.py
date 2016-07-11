@@ -11,6 +11,9 @@ from colorz import colorz
 #Uncomment if using colorama or termcolor
 #init();
 
+
+
+
 class earthquake:
 	
 	#properties

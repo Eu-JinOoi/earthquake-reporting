@@ -37,7 +37,6 @@ def run(scr,debug,dataSet):
 
 	#Pretty Print
 	#pp = pprint.PrettyPrinter(indent=4)
-	scr.addstr(0,0,"Can Change Color:"+str(curses.has_colors()))
 	while(1):
 		r = requests.get(url);
 		data = r.json()
