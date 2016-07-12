@@ -8,8 +8,8 @@ import sys, signal
 import curses
 import argparse
 import math
+import re #regex
 #User Defined Classes
-from colorz import colorz
 from earthquake import earthquake
 
 def signal_handler(signal, frame):
@@ -18,6 +18,11 @@ def signal_handler(signal, frame):
 	print("\nJust because of that, the big one is going to hit now...");
 	sys.exit(0);
 	
+def checkEmail(value):
+	match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', value)	
+	if ( match == None):
+		raise argparse.ArgumentTypeError("Invalid e-mail format");
+	return value;
 def check_limit_value(value):
 	if(int(value)<0):
 		raise argparse.ArgumentTypeError("You must enter a positive number for the limit. Entering 0 is the same as not specifying an argument.");
@@ -89,10 +94,10 @@ def run(scr,args):
 					count+=1;
 					if(count >=maxQuakes or count>=limit):
 						break;
-			scr.addstr(count+1,40,"Curl Requests: "+str(curlCount));
+			scr.addstr(count+1,29,"Requests: "+str(curlCount));
 			totalSize, sizeType=formatSize(requestSize,0);
-			scr.addstr(count+1,60,"Total Size: "+str(totalSize)+" "+sizeType);
-			scr.addstr(count+1,0,"Last update: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
+			scr.addstr(count+1,45,"Data: "+str(totalSize)+" "+sizeType);
+			scr.addstr(count+1,0,"Updated: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
 			scr.refresh();
 			scr.erase();
 
@@ -108,6 +113,7 @@ parser.add_argument('--limit', type = check_limit_value, default=-1);
 parser.add_argument('--refresh', type = check_limit_value, default=300);
 parser.add_argument('--minmag', type=checkMag, default=0);
 parser.add_argument('--tsunami', action = 'store_true');
+parser.add_argument('--mailto', type = checkEmail);
 args=parser.parse_args();
 #print(args);
 #exit();
