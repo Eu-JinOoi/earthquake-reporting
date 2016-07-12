@@ -84,8 +84,8 @@ def run(scr,args):
 			maxQuakes=screenSize[0]-2;
 			for quake in data['features']:
 				eq = earthquake(quake)	
-				eq.curseQuake(scr,count+1);
 				if(eq.isValidQuake() and eq.getMag() > minMag):
+					eq.curseQuake(scr,count+1);
 					count+=1;
 					if(count >=maxQuakes or count>=limit):
 						break;
