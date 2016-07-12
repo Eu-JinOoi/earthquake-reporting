@@ -84,7 +84,7 @@ def run(scr,args):
 			maxQuakes=screenSize[0]-2;
 			for quake in data['features']:
 				eq = earthquake(quake)	
-				if(eq.isValidQuake() and eq.getMag() > minMag):
+				if(eq.isValidQuake() and eq.getMag() > minMag and (args.tsunami == True and eq.hasTsunami() == True or args.tsunami == False)):
 					eq.curseQuake(scr,count+1);
 					count+=1;
 					if(count >=maxQuakes or count>=limit):
@@ -107,6 +107,7 @@ parser.add_argument('--range', choices = ['hour','day','week','month'], default 
 parser.add_argument('--limit', type = check_limit_value, default=-1);
 parser.add_argument('--refresh', type = check_limit_value, default=300);
 parser.add_argument('--minmag', type=checkMag, default=0);
+parser.add_argument('--tsunami', action = 'store_true');
 args=parser.parse_args();
 #print(args);
 #exit();

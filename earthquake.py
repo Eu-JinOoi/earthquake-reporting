@@ -143,3 +143,8 @@ class earthquake:
 			return True;
 		else:
 			return False;
+	def hasTsunami(self):
+		if(self.tsunami != 0):
+			return True;
+		else:
+			return False;
