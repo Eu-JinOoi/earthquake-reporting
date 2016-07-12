@@ -22,6 +22,14 @@ def check_limit_value(value):
 	if(int(value)<0):
 		raise argparse.ArgumentTypeError("You must enter a positive number for the limit. Entering 0 is the same as not specifying an argument.");
 	return int(value);
+def formatSize(size,unitPos):
+	types=['bytes','KB','MB','GB','TB','PB'];
+	if(size<1024):
+		return (int(size),str(types[unitPos]));
+	else:
+		size=size/1024;	
+		retSize,type=formatSize(size,unitPos+1);
+		return (retSize,type);
 def run(scr,args):
 	curses.start_color();
 	curses.use_default_colors();
@@ -51,13 +59,15 @@ def run(scr,args):
 	if(limit <= 0):
 		limit = math.inf;
 	curlCount=0;
+	requestSize=0;
 	startTime = int(time.time());
 	lastTime = 0;
-	interval = 300;
+	interval = 20;
 	while(1):
 		currTime=int(time.time());
 		if((currTime - lastTime) > interval):
 			r = requests.get(url);
+			requestSize+=int(len(r.content));
 			curlCount+=1;
 			lastTime=int(time.time());
 			data = r.json()
@@ -73,7 +83,9 @@ def run(scr,args):
 				count+=1;
 				if(count >=maxQuakes or count>=limit):
 					break;
-			scr.addstr(count+1,50,"Curl Requests: "+str(curlCount));
+			scr.addstr(count+1,40,"Curl Requests: "+str(curlCount));
+			totalSize, sizeType=formatSize(requestSize,0);
+			scr.addstr(count+1,60,"Total Size: "+str(totalSize)+" "+sizeType);
 			scr.addstr(count+1,0,"Last update: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
 			scr.refresh();
 			scr.erase();
