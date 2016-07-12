@@ -138,3 +138,8 @@ class earthquake:
 		return colorz.pretty(self.alert,self.alert+"BG")
 	def getMag(self):
 		return float(self.magnitude);
+	def isValidQuake(self):
+		if(self.magnitude != None):
+			return True;
+		else:
+			return False;

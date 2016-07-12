@@ -85,7 +85,7 @@ def run(scr,args):
 			for quake in data['features']:
 				eq = earthquake(quake)	
 				eq.curseQuake(scr,count+1);
-				if(eq.getMag() > minMag):
+				if(eq.isValidQuake() and eq.getMag() > minMag):
 					count+=1;
 					if(count >=maxQuakes or count>=limit):
 						break;
