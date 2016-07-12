@@ -136,3 +136,15 @@ class earthquake:
 			return colorz.pretty("       ","default")
 	def alertFormat(self):
 		return colorz.pretty(self.alert,self.alert+"BG")
+	def getMag(self):
+		return float(self.magnitude);
+	def isValidQuake(self):
+		if(self.magnitude != None):
+			return True;
+		else:
+			return False;
+	def hasTsunami(self):
+		if(self.tsunami != 0):
+			return True;
+		else:
+			return False;
