@@ -62,7 +62,7 @@ def run(scr,args):
 	requestSize=0;
 	startTime = int(time.time());
 	lastTime = 0;
-	interval = 20;
+	interval = args.refresh;
 	while(1):
 		currTime=int(time.time());
 		if((currTime - lastTime) > interval):
@@ -99,6 +99,7 @@ signal.signal(signal.SIGINT, signal_handler);
 parser = argparse.ArgumentParser(description = "Earthquake Data Parameter Parser");
 parser.add_argument('--range', choices = ['hour','day','week','month'], default = "day");
 parser.add_argument('--limit', type = check_limit_value, default=-1);
+parser.add_argument('--refresh', type = check_limit_value, default=300);
 args=parser.parse_args();
 print(args);
 
