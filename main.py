@@ -94,10 +94,10 @@ def run(scr,args):
 					count+=1;
 					if(count >=maxQuakes or count>=limit):
 						break;
+			scr.addstr(count+1,0,"Updated: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
 			scr.addstr(count+1,29,"Requests: "+str(curlCount));
 			totalSize, sizeType=formatSize(requestSize,0);
 			scr.addstr(count+1,45,"Data: "+str(totalSize)+" "+sizeType);
-			scr.addstr(count+1,0,"Updated: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
 			scr.refresh();
 			scr.erase();
 
