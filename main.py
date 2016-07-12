@@ -22,6 +22,10 @@ def check_limit_value(value):
 	if(int(value)<0):
 		raise argparse.ArgumentTypeError("You must enter a positive number for the limit. Entering 0 is the same as not specifying an argument.");
 	return int(value);
+def checkMag(value):
+	if(float(value)<0 or float(value)>10):
+		raise argparse.ArgumentTypeError("You have specified a magnitude that is out of range. Your value should be between 0.0 and 10.0");
+	return float(value);
 def formatSize(size,unitPos):
 	types=['bytes','KB','MB','GB','TB','PB'];
 	if(size<1024):
@@ -63,6 +67,7 @@ def run(scr,args):
 	startTime = int(time.time());
 	lastTime = 0;
 	interval = args.refresh;
+	minMag = float(args.minmag);
 	while(1):
 		currTime=int(time.time());
 		if((currTime - lastTime) > interval):
@@ -80,9 +85,10 @@ def run(scr,args):
 			for quake in data['features']:
 				eq = earthquake(quake)	
 				eq.curseQuake(scr,count+1);
-				count+=1;
-				if(count >=maxQuakes or count>=limit):
-					break;
+				if(eq.getMag() > minMag):
+					count+=1;
+					if(count >=maxQuakes or count>=limit):
+						break;
 			scr.addstr(count+1,40,"Curl Requests: "+str(curlCount));
 			totalSize, sizeType=formatSize(requestSize,0);
 			scr.addstr(count+1,60,"Total Size: "+str(totalSize)+" "+sizeType);
@@ -100,8 +106,10 @@ parser = argparse.ArgumentParser(description = "Earthquake Data Parameter Parser
 parser.add_argument('--range', choices = ['hour','day','week','month'], default = "day");
 parser.add_argument('--limit', type = check_limit_value, default=-1);
 parser.add_argument('--refresh', type = check_limit_value, default=300);
+parser.add_argument('--minmag', type=checkMag, default=0);
 args=parser.parse_args();
-print(args);
+#print(args);
+#exit();
 
-print(curses.wrapper(run,args));
+curses.wrapper(run,args);
 
