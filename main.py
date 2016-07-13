@@ -39,6 +39,15 @@ def formatSize(size,unitPos):
 		size=size/1024;	
 		retSize,type=formatSize(size,unitPos+1);
 		return (retSize,type);
+def printScreen(scr,quakes,start,stop):
+	for i in range(start,stop):
+		quake = quakes[i];
+		if(quake.isValidQuake() and quake.getMag() > minMag and (args.tsunami == True and quake.hasTsunami() == True or args.tsunami == False)):
+			quakeArray.append(eq.curseQuake(scr,count+1));
+			count+=1;
+			if(count >=maxQuakes or count>=limit):
+				break;
+	return	
 def run(scr,args):
 	curses.start_color();
 	curses.use_default_colors();
@@ -73,33 +82,48 @@ def run(scr,args):
 	lastTime = 0;
 	interval = args.refresh;
 	minMag = float(args.minmag);
+	connectionRetries=0;
+	quakeArray=[];
 	while(1):
 		currTime=int(time.time());
 		if((currTime - lastTime) > interval):
-			r = requests.get(url);
-			requestSize+=int(len(r.content));
-			curlCount+=1;
-			lastTime=int(time.time());
-			data = r.json()
-			count = 0;
-			
-			curses.update_lines_cols();
-			screenSize=scr.getmaxyx();
-			scr.resize(screenSize[0],screenSize[1]);
-			maxQuakes=screenSize[0]-2;
-			for quake in data['features']:
-				eq = earthquake(quake)	
-				if(eq.isValidQuake() and eq.getMag() > minMag and (args.tsunami == True and eq.hasTsunami() == True or args.tsunami == False)):
-					eq.curseQuake(scr,count+1);
-					count+=1;
-					if(count >=maxQuakes or count>=limit):
-						break;
-			scr.addstr(count+1,0,"Updated: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
-			scr.addstr(count+1,29,"Requests: "+str(curlCount));
-			totalSize, sizeType=formatSize(requestSize,0);
-			scr.addstr(count+1,45,"Data: "+str(totalSize)+" "+sizeType);
+			try:
+				r = requests.get(url);
+				connectionRetries=0;
+				requestSize+=int(len(r.content));
+				curlCount+=1;
+				lastTime=int(time.time());
+				data = r.json()
+				count = 0;
+				
+				curses.update_lines_cols();
+				screenSize=scr.getmaxyx();
+				scr.resize(screenSize[0],screenSize[1]);
+				maxQuakes=screenSize[0]-2;
+				#Build the Earthquake List
+				for quake in data['features']:
+					eq = earthquake(quake)	
+					quakeArray.append(eq);
+				#for quake in 
+					if(eq.isValidQuake() and eq.getMag() > minMag and (args.tsunami == True and eq.hasTsunami() == True or args.tsunami == False)):
+						quakeArray.append(eq.curseQuake(scr,count+1));
+						count+=1;
+						if(count >=maxQuakes or count>=limit):
+							break;
+				scr.addstr(count+1,0,"Updated: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
+				scr.addstr(count+1,29,"Requests: "+str(curlCount));
+				totalSize, sizeType=formatSize(requestSize,0);
+				scr.addstr(count+1,45,"Data: "+str(totalSize)+" "+sizeType);
+			except:
+				lastTime=0;
+				connectionRetries+=1;
+				scr.addstr(0,0,"Unable to establish a connection... ");
+				scr.addstr(1,0,"Reconnecting. Attempt "+str(connectionRetries)+". ");
+				time.sleep(5);
+				
 			scr.refresh();
 			scr.erase();
+			time.sleep(0.5);
 
 #_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 #Our Main Program
