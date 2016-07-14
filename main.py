@@ -61,26 +61,47 @@ def scheduler(scr,args):
 	upCount=0;
 	downCount=0;
 
+	topIndex = 0;
+	botIndex = 0;
+
 	while (True):
 		currTime=int(time.time());
+		#Check on Screen Size
+		curses.update_lines_cols();
+		screenSize=scr.getmaxyx();
+		scr.resize(screenSize[0],screenSize[1]);
+		#botIndex=topIndex+(screenSize[0] if screenSize[0]<args.limit and args.limit>0 else args.limit);
+		botIndex=topIndex+screenSize[0]-1;# -1 so that there is one row available at the bottom
+		#Key Capture Behavior	
 		keyPress = scr.getch();
+		scr.addstr(0,0,str(curses.KEY_EOL));
 		if(keyPress == curses.KEY_UP):
 			upCount+=1;
-			scr.addstr(0,30,"UP Arrow Pressed ("+str(upCount)+")");
+			topIndex+=1;
+			botIndex+=1;
 		elif(keyPress == curses.KEY_DOWN):
 			downCount+=1;
-			scr.addstr(0,0,"DOWN Arrow Pressed ("+str(downCount)+")");
-		else:
-			scr.addstr(0,20,"");
+			if(topIndex<=1):#1 so that there is 1 row buffer at the top
+				topIndex=0;	
+				curses.beep();
+			else:
+				topIndex-=1;
+				botIndex-=1;
+		scr.move(0,0);
+		scr.clrtoeol();
+		scr.addstr(0,0,"Top Index:"+str(topIndex));
+		scr.addstr(0,15,"Bot Index:"+str(botIndex));
+		scr.addstr(0,40,"DOWN Arrow Pressed ("+str(downCount)+")");
+		scr.addstr(0,70,"UP Arrow Pressed ("+str(upCount)+")");
+		#Main Display
 		if((currTime - lastTime) > interval):
 			lastTime=int(time.time());
-			run(scr,args);
+			run(scr,args,topIndex,botIndex);
 			scr.refresh();
 			#scr.erase();
 		#time.sleep(0.3);
 
-
-def run(scr,args):
+def run(scr,args,topIndex,botIndex):
 	#API Doc http://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
 	url='';
 	data='';
@@ -101,7 +122,7 @@ def run(scr,args):
 		url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson';
 	else:
 		#Set not specified
-		return args.range;
+	 	return args.range;
 	#Argument - limit
 	limit=args.limit
 	if(limit <= 0):
@@ -134,9 +155,10 @@ def run(scr,args):
 		for quake in data['features']:
 			eq = earthquake(quake)	
 			quakeArray.append(eq);
-		#for quake in 
-			if(eq.isValidQuake() and eq.getMag() > minMag and (args.tsunami == True and eq.hasTsunami() == True or args.tsunami == False)):
-				quakeArray.append(eq.curseQuake(scr,count+1));
+		#Need to break out data aquasition and data printing into seperate functions. data printing occurs mroe than data acquisition.
+		for i in range(topIndex, botIndex,1):
+			if(quakeArray[i].isValidQuake() and quakeArray[i].getMag() > minMag and (args.tsunami == True and quakeArray[i].hasTsunami() == True or args.tsunami == False)):
+				quakeArray[i].curseQuake(scr,count+1);
 				count+=1;
 				if(count >=maxQuakes or count>=limit):
 					break;
