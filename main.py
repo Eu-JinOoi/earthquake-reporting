@@ -51,15 +51,34 @@ def printScreen(scr,quakes,start,stop):
 def scheduler(scr,args):
 	curses.start_color();
 	curses.use_default_colors();	
+	scr.nodelay(True);
+	scr.keypad(1);
 	
 	interval=args.refresh;
 	currTime=int(time.time());
 	lastTime=0;
+
+	upCount=0;
+	downCount=0;
+
 	while (True):
 		currTime=int(time.time());
+		keyPress = scr.getch();
+		if(keyPress == curses.KEY_UP):
+			upCount+=1;
+			scr.addstr(0,30,"UP Arrow Pressed ("+str(upCount)+")");
+		elif(keyPress == curses.KEY_DOWN):
+			downCount+=1;
+			scr.addstr(0,0,"DOWN Arrow Pressed ("+str(downCount)+")");
+		else:
+			scr.addstr(0,20,"");
 		if((currTime - lastTime) > interval):
 			lastTime=int(time.time());
 			run(scr,args);
+			scr.refresh();
+			#scr.erase();
+		#time.sleep(0.3);
+
 
 def run(scr,args):
 	#API Doc http://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
@@ -132,8 +151,6 @@ def run(scr,args):
 		scr.addstr(1,0,"Reconnecting. Attempt "+str(connectionRetries)+". ");
 		time.sleep(5);
 		
-	scr.refresh();
-	scr.erase();
 
 #_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 #Our Main Program
@@ -151,6 +168,5 @@ parser.add_argument('--mailto', type = checkEmail);
 args=parser.parse_args();
 #print(args);
 #exit();
-
 curses.wrapper(scheduler,args);
 
