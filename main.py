@@ -57,10 +57,15 @@ def scheduler(scr,args):
 	topIndex = 0;
 	botIndex = 0;
 
-	quakeArray=[];
-	quakeList=None;
+	quakeData=[];
+	isFirstRun=True;
 	while (True):
 		currTime=int(time.time());
+		#Fetch Data
+		if((currTime - lastTime) > interval or isFirstRun):
+			isFirstRun=False;
+			lastTime=int(time.time());
+			quakeData=fetchData(args,scr);
 		#Check on Screen Size
 		curses.update_lines_cols();
 		screenSize=scr.getmaxyx();
@@ -92,16 +97,13 @@ def scheduler(scr,args):
 		scr.addstr(0,15,"Bot Index:"+str(botIndex));
 		scr.addstr(0,40,"DOWN Arrow Pressed ("+str(downCount)+")");
 		scr.addstr(0,70,"UP Arrow Pressed ("+str(upCount)+")");
-		quakeList;
-		#Fetch Data
-		if((currTime - lastTime) > interval):
-			lastTime=int(time.time());
-			quakeData=fetchData(args);
-			quakeList=earthquakeList(quakeData);	
+		
+		quakeList=earthquakeList(quakeData);	
 		quakeList.display(scr,args,topIndex,botIndex,screenSize[0]);
+		scr.addstr(screenSize[0]-1,0,"Updated: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
 		scr.refresh();
 
-def fetchData(args): 
+def fetchData(args,scr): 
 	#API Doc http://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
 	url='';
 	data='';
@@ -120,14 +122,17 @@ def fetchData(args):
 
 	curlCount=0;
 	connectionRetries=0;
+	requestSize=0;
 	try:
 		r = requests.get(url);
 		connectionRetries=0;
-		requestSize+=int(len(r.content));
+		#requestSize+=int(len(r.content));
 		curlCount+=1;
 		data = r.json()
+		scr.addstr(4,0,"Received "+str(len(data))+" records from USGS.");
 		return data;
 	except:
+		scr.addstr(4,0,"Connection to USGS failed.");
 		connectionRetries+=1;
 		time.sleep(5);
 

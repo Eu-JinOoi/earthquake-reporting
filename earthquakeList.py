@@ -7,12 +7,21 @@ from earthquake import earthquake;
 
 class earthquakeList:
 	quakeArray = [];	
+	invalid = True;
 	def __init__(self,quakeJSON):
+		if (quakeJSON == None):
+			self.invalid = True;
+			return;
+		self.invalid = False;
 		for quake in quakeJSON['features']:
 			eq = earthquake(quake);
 			self.quakeArray.append(eq);
 
 	def display(self,scr,args,topIndex,botIndex,windowHeight):
+		if(self.invalid):
+			scr.addstr(1,0,"Quake Data is Invalid");
+			scr.addstr(2,0,"Records:"+str(len(self.quakeArray)));
+			return;
 		#Argument Limit
 		limit=args.limit;
 		if(limit <= 0):
