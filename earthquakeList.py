@@ -14,12 +14,21 @@ class earthquakeList:
 			self.invalid = True;
 			return;
 		self.invalid = False;
-		for quake in quakeJSON['features']:
-			eq = earthquake(quake);
-			self.quakeArray.append(eq);
+		if(self.quakeArray == []):
+			for quake in quakeJSON['features']:
+				eq = earthquake(quake);
+				self.quakeArray.append(eq);
+				self.idArray.append(eq.getId());
+		else:
+			for quake in quakeJSON['features']:
+				eq = earthquake(quake);
+				if((eq.getId() in self.idArray) == False):
+					self.quakeArray.insert(0,eq);	
+					self.idArray.append(eq.getId());
 
 	def events(self):
 		return len(self.quakeArray);
+
 	def display(self,scr,args,topIndex,botIndex,windowHeight):
 		if(self.invalid):
 			scr.addstr(1,0,"Quake Data is Invalid");

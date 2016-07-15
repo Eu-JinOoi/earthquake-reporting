@@ -152,3 +152,5 @@ class earthquake:
 			return True;
 		else:
 			return False;
+	def getId(self):
+		return self.id;
