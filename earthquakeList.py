@@ -1,21 +1,30 @@
 #!/usr/local/bin/python3
 import curses;
 import time;
+import math;
 #Custom Classes
-import earthquake;
+from earthquake import earthquake;
 
 class earthquakeList:
 	quakeArray = [];	
-	def __init__(quakeJSON):
+	def __init__(self,quakeJSON):
 		for quake in quakeJSON['features']:
-                        eq = earthquake(quake)
-                        quakeArray.append(eq);
-	def print(args,topIndex,botIndex,maxQuakes):
+			eq = earthquake(quake);
+			self.quakeArray.append(eq);
+
+	def display(self,scr,args,topIndex,botIndex,windowHeight):
+		#Argument Limit
 		limit=args.limit;
-		maxQuakes=	
+		if(limit <= 0):
+			limit = math.inf;
+		minMag = args.minmag;
+		maxQuakes = windowHeight-2;	
+		count = 0
+		if(botIndex>=len(self.quakeArray)):
+			botIndex=len(self.quakeArray);
 		for i in range(topIndex, botIndex,1):
-			if(quakeArray[i].isValidQuake() and quakeArray[i].getMag() > minMag and (args.tsunami == True and quakeArray[i].hasTsunami() == True or args.tsunami == False)):
-				quakeArray[i].curseQuake(scr,count+1);
+			if(self.quakeArray[i].isValidQuake() and self.quakeArray[i].getMag() > minMag and (args.tsunami == True and self.quakeArray[i].hasTsunami() == True or args.tsunami == False)):
+				self.quakeArray[i].curseQuake(scr,count+1);
 				count+=1;
 				if(count >=maxQuakes or count>=limit):
 					break;

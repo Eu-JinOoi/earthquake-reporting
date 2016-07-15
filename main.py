@@ -11,6 +11,7 @@ import math
 import re #regex
 #User Defined Classes
 from earthquake import earthquake
+from earthquakeList import earthquakeList #should probably merge this class into earthquake.
 
 def signal_handler(signal, frame):
 	#Want to clean up CTRL+C action
@@ -66,6 +67,7 @@ def scheduler(scr,args):
 
 
 	quakeArray=[];
+	quakeList=None;
 	while (True):
 		currTime=int(time.time());
 		#Check on Screen Size
@@ -99,21 +101,23 @@ def scheduler(scr,args):
 		scr.addstr(0,15,"Bot Index:"+str(botIndex));
 		scr.addstr(0,40,"DOWN Arrow Pressed ("+str(downCount)+")");
 		scr.addstr(0,70,"UP Arrow Pressed ("+str(upCount)+")");
+		quakeList;
 		#Fetch Data
 		if((currTime - lastTime) > interval):
 			lastTime=int(time.time());
-			quakeArray=run(scr,args,topIndex,botIndex);
-		printEq(scr,args,quakeArray,topIndex,botIndex);	
+			quakeData=run(scr,args,topIndex,botIndex);
+			quakeList=earthquakeList(quakeData);	
+		#printEq(scr,args,quakeArray,topIndex,botIndex);	
+		quakeList.display(scr,args,topIndex,botIndex,screenSize[0]);
 		scr.refresh();
 		#time.sleep(0.3);
 
-def run(scr,args,topIndex,botIndex):
+def run(scr,args,topIndex,botIndex): #change to something like getData or fetchData
 	#API Doc http://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
 	url='';
 	data='';
 	#Process Arguments
 	dataSet=args.range;
-
 	if(dataSet == 'hour'):
 		#All Hour
 		url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson';
@@ -135,12 +139,10 @@ def run(scr,args,topIndex,botIndex):
 		limit = math.inf;
 	curlCount=0;
 	requestSize=0;
-	#startTime = int(time.time());
 	lastTime = 0;
-	#interval = args.refresh;
+	interval = args.refresh;
 	minMag = float(args.minmag);
 	connectionRetries=0;
-	quakeArray=[];
 	#while(1):
 	#	currTime=int(time.time());
 	#	if((currTime - lastTime) > interval):
@@ -149,18 +151,15 @@ def run(scr,args,topIndex,botIndex):
 		connectionRetries=0;
 		requestSize+=int(len(r.content));
 		curlCount+=1;
-		#lastTime=int(time.time());
 		data = r.json()
-		count = 0;
+		return data;
+		#count = 0;
 		
-		curses.update_lines_cols();
-		screenSize=scr.getmaxyx();
-		scr.resize(screenSize[0],screenSize[1]);
-		maxQuakes=screenSize[0]-2;
 		#Build the Earthquake List
-		for quake in data['features']:
-			eq = earthquake(quake)	
-			quakeArray.append(eq);
+		#for quake in data['features']:
+		#	eq = earthquake(quake)	
+		#	quakeArray.append(eq);
+		#return earthquakeList(data,scr);
 		#Need to break out data aquasition and data printing into seperate functions. data printing occurs mroe than data acquisition.
 		scr.addstr(count+1,0,"Updated: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
 		scr.addstr(count+1,29,"Requests: "+str(curlCount));
@@ -172,8 +171,6 @@ def run(scr,args,topIndex,botIndex):
 		scr.addstr(0,0,"Unable to establish a connection... ");
 		scr.addstr(1,0,"Reconnecting. Attempt "+str(connectionRetries)+". ");
 		time.sleep(5);
-		
-	return quakeArray;
 
 def printEq(scr,args,quakeArray,topIndex,botIndex):
 	if(len(quakeArray)<=topIndex):
