@@ -64,6 +64,8 @@ def scheduler(scr,args):
 	topIndex = 0;
 	botIndex = 0;
 
+
+	quakeArray=[];
 	while (True):
 		currTime=int(time.time());
 		#Check on Screen Size
@@ -75,30 +77,34 @@ def scheduler(scr,args):
 		#Key Capture Behavior	
 		keyPress = scr.getch();
 		scr.addstr(0,0,str(curses.KEY_EOL));
-		if(keyPress == curses.KEY_UP):
-			upCount+=1;
+		if(keyPress == curses.KEY_DOWN):
+			scr.erase();
+			downCount+=1;
 			topIndex+=1;
 			botIndex+=1;
-		elif(keyPress == curses.KEY_DOWN):
-			downCount+=1;
+		elif(keyPress == curses.KEY_UP):
+			scr.erase();
+			upCount+=1;
 			if(topIndex<=1):#1 so that there is 1 row buffer at the top
 				topIndex=0;	
 				curses.beep();
 			else:
 				topIndex-=1;
 				botIndex-=1;
+		elif(keyPress == ord('q') or keyPress == ord('Q')):
+			return;
 		scr.move(0,0);
 		scr.clrtoeol();
 		scr.addstr(0,0,"Top Index:"+str(topIndex));
 		scr.addstr(0,15,"Bot Index:"+str(botIndex));
 		scr.addstr(0,40,"DOWN Arrow Pressed ("+str(downCount)+")");
 		scr.addstr(0,70,"UP Arrow Pressed ("+str(upCount)+")");
-		#Main Display
+		#Fetch Data
 		if((currTime - lastTime) > interval):
 			lastTime=int(time.time());
-			run(scr,args,topIndex,botIndex);
-			scr.refresh();
-			#scr.erase();
+			quakeArray=run(scr,args,topIndex,botIndex);
+		printEq(scr,args,quakeArray,topIndex,botIndex);	
+		scr.refresh();
 		#time.sleep(0.3);
 
 def run(scr,args,topIndex,botIndex):
@@ -156,12 +162,6 @@ def run(scr,args,topIndex,botIndex):
 			eq = earthquake(quake)	
 			quakeArray.append(eq);
 		#Need to break out data aquasition and data printing into seperate functions. data printing occurs mroe than data acquisition.
-		for i in range(topIndex, botIndex,1):
-			if(quakeArray[i].isValidQuake() and quakeArray[i].getMag() > minMag and (args.tsunami == True and quakeArray[i].hasTsunami() == True or args.tsunami == False)):
-				quakeArray[i].curseQuake(scr,count+1);
-				count+=1;
-				if(count >=maxQuakes or count>=limit):
-					break;
 		scr.addstr(count+1,0,"Updated: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
 		scr.addstr(count+1,29,"Requests: "+str(curlCount));
 		totalSize, sizeType=formatSize(requestSize,0);
@@ -173,7 +173,28 @@ def run(scr,args,topIndex,botIndex):
 		scr.addstr(1,0,"Reconnecting. Attempt "+str(connectionRetries)+". ");
 		time.sleep(5);
 		
+	return quakeArray;
 
+def printEq(scr,args,quakeArray,topIndex,botIndex):
+	if(len(quakeArray)<=topIndex):
+		return;
+	count=0;
+	#Argument - limit
+	limit=args.limit
+	if(limit <= 0):
+		limit = math.inf;
+
+
+	minMag=args.minmag;
+	screenSize=scr.getmaxyx();
+	scr.resize(screenSize[0],screenSize[1]);
+	maxQuakes=screenSize[0]-2;
+	for i in range(topIndex, botIndex,1):
+		if(quakeArray[i].isValidQuake() and quakeArray[i].getMag() > minMag and (args.tsunami == True and quakeArray[i].hasTsunami() == True or args.tsunami == False)):
+			quakeArray[i].curseQuake(scr,count+1);
+			count+=1;
+			if(count >=maxQuakes or count>=limit or i+1>=len(quakeArray)):
+				break;
 #_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 #Our Main Program
 
