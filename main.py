@@ -125,6 +125,9 @@ def scheduler(scr,args):
 			else:
 				topIndex -= pressStep;
 				botIndex -= pressStep;
+		elif(keyPress == ord('t') or keyPress == ord('T')):
+			topIndex = 0;
+			botIndex=topIndex+screenSize[0];# -1 so that there is one row available at the bottom
 		elif(keyPress == ord('q') or keyPress == ord('Q')):
 			return;
 		elif(keyPress == -1):
@@ -136,7 +139,6 @@ def scheduler(scr,args):
 		if(botIndex > quakeList.events()):
 			temp = botIndex - quakeList.events();
 			topIndex -= temp;
-			botIndex -= temp;
 		#Print the quake list
 		quakeList.display(scr,args,topIndex,botIndex,screenSize[0]);
 		scr.addstr(screenSize[0]-1,0,"Updated: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
