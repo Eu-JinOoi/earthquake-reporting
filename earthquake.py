@@ -39,6 +39,9 @@ class earthquake:
 	geoType		= "";
 	coordinates	= [];
 	id		= "";
+
+
+	TXT_WIDTH_MAG 	= 5;
 		
 	def __init__(self, earthquakeData):
 		
@@ -90,6 +93,7 @@ class earthquake:
 	def curseQuake(self,scr,count):
 		earthquake.registerColors();
 		if(self.magnitude!=None):
+			scr.addstr(count,95,str(count));
 			#Magnitude
 			cp = self.magToColor();
 			scr.addstr(count,0,"{:5}".format(str(self.magnitude)),curses.color_pair(cp));

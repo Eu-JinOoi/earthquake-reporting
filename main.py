@@ -18,7 +18,6 @@ def signal_handler(signal, frame):
 	curses.reset_shell_mode();
 	print("\nJust because of that, the big one is going to hit now...");
 	sys.exit(0);
-	
 def checkEmail(value):
 	match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', value)	
 	if ( match == None):
@@ -42,67 +41,111 @@ def formatSize(size,unitPos):
 		return (retSize,type);
 
 def scheduler(scr,args):
+	#Setup the screen
 	curses.start_color();
 	curses.use_default_colors();	
 	scr.nodelay(True);
 	scr.keypad(1);
-	
+	#Timing Related Variables	
 	interval=args.refresh;
 	currTime=int(time.time());
-	lastTime=0;
-
+	lastTime = 0;
+	lastScreenRefresh = 0;
+	#Debug Related Variables
 	upCount=0;
 	downCount=0;
-
+	#Index Variables
 	topIndex = 0;
 	botIndex = 0;
 
 	quakeData=[];
-	isFirstRun=True;
+
+	#Long Press Functionality
+	pressLoops = 0;
+	pressThreshold = 30;
+	pressStep = 1; #Step Size
+	pressStepFF = 2; #Fast Forward Speed
+	pressNoPressLoops = 0;
+	pressNoPressMax = 100;
+
+	screenSize=scr.getmaxyx();
 	while (True):
 		currTime=int(time.time());
 		#Fetch Data
-		if((currTime - lastTime) > interval or isFirstRun):
-			isFirstRun=False;
+		if((currTime - lastTime) > interval):
 			lastTime=int(time.time());
 			quakeData=fetchData(args,scr);
+			#Populate the Quake List
+			quakeList=earthquakeList(quakeData);	
+			curses.beep();
+	
+		scr.move(0,0);
+		scr.clrtoeol();
+		scr.addstr(0,0,"Top Index:"+str(topIndex));
+		scr.addstr(0,15,"Bot Index:"+str(botIndex));
+		scr.addstr(0,38,"DOWN Arrow Pressed ("+str(downCount)+")");
+		scr.addstr(0,65,"UP Arrow Pressed ("+str(upCount)+")");
+		scr.addstr(0,87,"Screen Height:"+str(screenSize[0]));
+		
+
 		#Check on Screen Size
 		curses.update_lines_cols();
+		#if(currTime - lastScreenRefresh > 2):
 		screenSize=scr.getmaxyx();
 		scr.resize(screenSize[0],screenSize[1]);
-		#botIndex=topIndex+(screenSize[0] if screenSize[0]<args.limit and args.limit>0 else args.limit);
-		botIndex=topIndex+screenSize[0]-1;# -1 so that there is one row available at the bottom
+		#botIndex=topIndex+(screenSize[0] if screenSize[0]<args.limit and args.limit>0 else args.limit)-2;
+		botIndex=topIndex+screenSize[0];# -1 so that there is one row available at the bottom
+
+
 		#Key Capture Behavior	
 		keyPress = scr.getch();
 		scr.addstr(0,0,str(curses.KEY_EOL));
 		if(keyPress == curses.KEY_DOWN):
+			pressLoops += 1;
+			pressNoPressLoops = 0;
+			if(pressLoops >= pressThreshold):
+				pressStep = pressStepFF;
 			scr.erase();
 			downCount+=1;
-			topIndex+=1;
-			botIndex+=1;
+			if(botIndex >= quakeList.events()):
+				curses.beep();
+			else:
+				topIndex += pressStep;
+				botIndex += pressStep;
 		elif(keyPress == curses.KEY_UP):
+			pressLoops += 1;
+			pressNoPressLoops = 0;
+			if(pressLoops >= pressThreshold):
+				pressStep = pressStepFF;
 			scr.erase();
 			upCount+=1;
 			if(topIndex<=1):#1 so that there is 1 row buffer at the top
 				topIndex=0;	
 				curses.beep();
 			else:
-				topIndex-=1;
-				botIndex-=1;
+				topIndex -= pressStep;
+				botIndex -= pressStep;
 		elif(keyPress == ord('q') or keyPress == ord('Q')):
 			return;
-		scr.move(0,0);
-		scr.clrtoeol();
-		scr.addstr(0,0,"Top Index:"+str(topIndex));
-		scr.addstr(0,15,"Bot Index:"+str(botIndex));
-		scr.addstr(0,40,"DOWN Arrow Pressed ("+str(downCount)+")");
-		scr.addstr(0,70,"UP Arrow Pressed ("+str(upCount)+")");
-		
-		quakeList=earthquakeList(quakeData);	
+		elif(keyPress == -1):
+			pressNoPressLoops += 1;
+			if(pressNoPressLoops > pressNoPressMax):
+				pressLoops = 0;
+				pressStep = 1;
+		#This is to make sure that the speed step won't go out of bounds
+		if(botIndex > quakeList.events()):
+			temp = botIndex - quakeList.events();
+			topIndex -= temp;
+			botIndex -= temp;
+		#Print the quake list
 		quakeList.display(scr,args,topIndex,botIndex,screenSize[0]);
 		scr.addstr(screenSize[0]-1,0,"Updated: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
+		scr.addstr(screenSize[0]-1,35,'Events: '+str(quakeList.events()));
+		scr.addstr(screenSize[0]-1,55,"Press Loops:" + str(pressLoops));
+		scr.addstr(screenSize[0]-1,75,"PressStep: "+ str(pressStep));
+		#Refresh the Page
 		scr.refresh();
-
+	
 def fetchData(args,scr): 
 	#API Doc http://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
 	url='';
@@ -119,22 +162,20 @@ def fetchData(args,scr):
 		url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson';
 	else: #Set not specified or specified incorrectly
 	 	return args.range;
-
-	curlCount=0;
-	connectionRetries=0;
-	requestSize=0;
+	#curlCount=0;
+	#connectionRetries=0;
+	#requestSize=0;
 	try:
 		r = requests.get(url);
-		connectionRetries=0;
+	#	connectionRetries=0;
 		#requestSize+=int(len(r.content));
-		curlCount+=1;
+	#	curlCount+=1;
 		data = r.json()
-		scr.addstr(4,0,"Received "+str(len(data))+" records from USGS.");
+	#	scr.addstr(4,0,"Received "+str(len(data))+" records from USGS.");
 		return data;
 	except:
 		scr.addstr(4,0,"Connection to USGS failed.");
-		connectionRetries+=1;
-		time.sleep(5);
+	#	connectionRetries+=1;
 
 #_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 #Our Main Program

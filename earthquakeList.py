@@ -7,6 +7,7 @@ from earthquake import earthquake;
 
 class earthquakeList:
 	quakeArray = [];	
+	idArray = [];
 	invalid = True;
 	def __init__(self,quakeJSON):
 		if (quakeJSON == None):
@@ -17,6 +18,8 @@ class earthquakeList:
 			eq = earthquake(quake);
 			self.quakeArray.append(eq);
 
+	def events(self):
+		return len(self.quakeArray);
 	def display(self,scr,args,topIndex,botIndex,windowHeight):
 		if(self.invalid):
 			scr.addstr(1,0,"Quake Data is Invalid");
@@ -31,12 +34,12 @@ class earthquakeList:
 		count = 0
 		if(botIndex>=len(self.quakeArray)):
 			botIndex=len(self.quakeArray);
-		for i in range(topIndex, botIndex,1):
+		for i in range(topIndex, botIndex+2):
 			if(self.quakeArray[i].isValidQuake() and self.quakeArray[i].getMag() > minMag and (args.tsunami == True and self.quakeArray[i].hasTsunami() == True or args.tsunami == False)):
 				self.quakeArray[i].curseQuake(scr,count+1);
 				count+=1;
-				if(count >=maxQuakes or count>=limit):
-					break;
+			if(count >=maxQuakes or count>=limit):
+				break;
 
 		
 			
