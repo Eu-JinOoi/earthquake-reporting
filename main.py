@@ -40,15 +40,7 @@ def formatSize(size,unitPos):
 		size=size/1024;	
 		retSize,type=formatSize(size,unitPos+1);
 		return (retSize,type);
-def printScreen(scr,quakes,start,stop):
-	for i in range(start,stop):
-		quake = quakes[i];
-		if(quake.isValidQuake() and quake.getMag() > minMag and (args.tsunami == True and quake.hasTsunami() == True or args.tsunami == False)):
-			quakeArray.append(eq.curseQuake(scr,count+1));
-			count+=1;
-			if(count >=maxQuakes or count>=limit):
-				break;
-	return	
+
 def scheduler(scr,args):
 	curses.start_color();
 	curses.use_default_colors();	
@@ -64,7 +56,6 @@ def scheduler(scr,args):
 
 	topIndex = 0;
 	botIndex = 0;
-
 
 	quakeArray=[];
 	quakeList=None;
@@ -105,47 +96,30 @@ def scheduler(scr,args):
 		#Fetch Data
 		if((currTime - lastTime) > interval):
 			lastTime=int(time.time());
-			quakeData=run(scr,args,topIndex,botIndex);
+			quakeData=fetchData(args);
 			quakeList=earthquakeList(quakeData);	
-		#printEq(scr,args,quakeArray,topIndex,botIndex);	
 		quakeList.display(scr,args,topIndex,botIndex,screenSize[0]);
 		scr.refresh();
-		#time.sleep(0.3);
 
-def run(scr,args,topIndex,botIndex): #change to something like getData or fetchData
+def fetchData(args): 
 	#API Doc http://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
 	url='';
 	data='';
 	#Process Arguments
 	dataSet=args.range;
-	if(dataSet == 'hour'):
-		#All Hour
+	if(dataSet == 'hour'): #All Hour
 		url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson';
-	elif(dataSet == 'day'):
-		#All Day
+	elif(dataSet == 'day'): #All Day
 		url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson';
-	elif(dataSet == 'week'):
-		#All Week
+	elif(dataSet == 'week'): #All Week
 		url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson';
-	elif(dataSet == 'month'):
-		#All Month
+	elif(dataSet == 'month'): #All Month
 		url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson';
-	else:
-		#Set not specified
+	else: #Set not specified or specified incorrectly
 	 	return args.range;
-	#Argument - limit
-	limit=args.limit
-	if(limit <= 0):
-		limit = math.inf;
+
 	curlCount=0;
-	requestSize=0;
-	lastTime = 0;
-	interval = args.refresh;
-	minMag = float(args.minmag);
 	connectionRetries=0;
-	#while(1):
-	#	currTime=int(time.time());
-	#	if((currTime - lastTime) > interval):
 	try:
 		r = requests.get(url);
 		connectionRetries=0;
@@ -153,45 +127,10 @@ def run(scr,args,topIndex,botIndex): #change to something like getData or fetchD
 		curlCount+=1;
 		data = r.json()
 		return data;
-		#count = 0;
-		
-		#Build the Earthquake List
-		#for quake in data['features']:
-		#	eq = earthquake(quake)	
-		#	quakeArray.append(eq);
-		#return earthquakeList(data,scr);
-		#Need to break out data aquasition and data printing into seperate functions. data printing occurs mroe than data acquisition.
-		scr.addstr(count+1,0,"Updated: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
-		scr.addstr(count+1,29,"Requests: "+str(curlCount));
-		totalSize, sizeType=formatSize(requestSize,0);
-		scr.addstr(count+1,45,"Data: "+str(totalSize)+" "+sizeType);
 	except:
-		lastTime=0;
 		connectionRetries+=1;
-		scr.addstr(0,0,"Unable to establish a connection... ");
-		scr.addstr(1,0,"Reconnecting. Attempt "+str(connectionRetries)+". ");
 		time.sleep(5);
 
-def printEq(scr,args,quakeArray,topIndex,botIndex):
-	if(len(quakeArray)<=topIndex):
-		return;
-	count=0;
-	#Argument - limit
-	limit=args.limit
-	if(limit <= 0):
-		limit = math.inf;
-
-
-	minMag=args.minmag;
-	screenSize=scr.getmaxyx();
-	scr.resize(screenSize[0],screenSize[1]);
-	maxQuakes=screenSize[0]-2;
-	for i in range(topIndex, botIndex,1):
-		if(quakeArray[i].isValidQuake() and quakeArray[i].getMag() > minMag and (args.tsunami == True and quakeArray[i].hasTsunami() == True or args.tsunami == False)):
-			quakeArray[i].curseQuake(scr,count+1);
-			count+=1;
-			if(count >=maxQuakes or count>=limit or i+1>=len(quakeArray)):
-				break;
 #_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 #Our Main Program
 
