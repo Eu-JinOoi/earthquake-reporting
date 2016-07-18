@@ -39,6 +39,9 @@ class earthquake:
 	geoType		= "";
 	coordinates	= [];
 	id		= "";
+
+
+	TXT_WIDTH_MAG 	= 5;
 		
 	def __init__(self, earthquakeData):
 		
@@ -90,6 +93,7 @@ class earthquake:
 	def curseQuake(self,scr,count):
 		earthquake.registerColors();
 		if(self.magnitude!=None):
+			#scr.addstr(count,95,str(count));
 			#Magnitude
 			cp = self.magToColor();
 			scr.addstr(count,0,"{:5}".format(str(self.magnitude)),curses.color_pair(cp));
@@ -102,8 +106,11 @@ class earthquake:
 				scr.addstr(count,26,'QB', curses.color_pair(5));
 			elif(self.type == 'explosion'):
 				scr.addstr(count,26,'EX', curses.color_pair(5));
+			elif(self.type == 'mine collapse'):
+				scr.addstr(count,26,'MC', curses.color_pair(2));
 			else:
 				scr.addstr(count,26,'UK', curses.color_pair(5));
+				#scr.addstr(count,26,self.type, curses.color_pair(5));
 			#Tsunami
 			if(self.tsunami == 1):
 				scr.addstr(count,29,"TSUNAMI",curses.color_pair(11) | curses.A_BLINK);
@@ -111,6 +118,10 @@ class earthquake:
 				scr.addstr(count,29,"~ ~ ~ ~");
 			#Place
 			scr.addstr(count,37,str(self.place));
+			#Event ID
+			#if(args.debug):	
+			#scr.addstr(count,100,self.id);
+
 	def registerColors():
 		curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_GREEN);#0-3
 		curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_YELLOW);#4-5
@@ -148,3 +159,5 @@ class earthquake:
 			return True;
 		else:
 			return False;
+	def getId(self):
+		return self.id;
