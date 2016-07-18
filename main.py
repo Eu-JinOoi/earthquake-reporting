@@ -140,7 +140,7 @@ def scheduler(scr,args):
 			temp = botIndex - quakeList.events();
 			topIndex -= temp;
 		#Print the quake list
-		quakeList.display(scr,args,topIndex,botIndex,screenSize[0]);
+		topIndex = quakeList.display(scr,args,topIndex,botIndex,screenSize[0]);
 		scr.addstr(screenSize[0]-1,0,"Updated: " + str(datetime.datetime.fromtimestamp(lastTime).strftime('%Y-%m-%d %H:%M:%S')));
 		scr.addstr(screenSize[0]-1,30,'Events: '+str(quakeList.events()));
 		scr.addstr(screenSize[0]-1,45,"Press Loops:" + str(pressLoops));

@@ -9,7 +9,7 @@ class earthquakeList:
 	quakeArray = [];	
 	idArray = [];
 	invalid = True;
-		
+
 	#Arg Stuff
 	tsunami = False;
 	limit = math.inf;
@@ -55,6 +55,7 @@ class earthquakeList:
 		if(botIndex>=len(self.quakeArray)):
 			botIndex=len(self.quakeArray);
 		scr.addstr(21,0,"Events: "+ str(self.events()));
+		firstRelevant = -1;
 		while(True):
 			#if(count >= args.limit or count >= maxQuakes or positionIndex >= self.events()):
 			if(count >= maxQuakes or positionIndex >= self.events()):
@@ -64,6 +65,8 @@ class earthquakeList:
 				and self.quakeArray[positionIndex].getMag() > minMag 
 				and (args.tsunami == True and self.quakeArray[positionIndex].hasTsunami() == True or args.tsunami == False)
 			):
+				if(firstRelevant < 0):
+					firstRelevant = positionIndex;
 				self.quakeArray[positionIndex].curseQuake(scr,count+1);
 				count += 1;
 			positionIndex += 1;
@@ -75,5 +78,7 @@ class earthquakeList:
 		#	if(count >=maxQuakes or count>=limit):
 		#		break;
 
-		
+		#This will return the index of the first relevant entry. 
+		#This should help with scrolling through event when a filter is applied. 	
+		return firstRelevant;
 			
