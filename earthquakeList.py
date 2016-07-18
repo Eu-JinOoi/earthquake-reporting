@@ -40,9 +40,9 @@ class earthquakeList:
 	#Description: Parses the arguments and returns the number of events in the array that match the criteria
 	def parseArgs(self, args):
 		if(args.tsunami == True):
-			this.tsunami = True;
+			self.tsunami = True;
 		if(args.limit > 0):
-			this.limit = args.limit;
+			self.limit = args.limit;
 		self.minmag = args.minmag;
 		for quake in self.quakeArray:
 			if(quake.isValidQuake() and self.minmag <= quake.magnitude and ((self.tsunami == True and quake.tsunami == True) or self.tsunami == False)):

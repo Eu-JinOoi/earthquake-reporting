@@ -103,7 +103,6 @@ def scheduler(scr,args):
 		#botIndex=topIndex+(screenSize[0] if screenSize[0]<args.limit and args.limit>0 else args.limit)-2;
 		botIndex=topIndex+screenSize[0];# -1 so that there is one row available at the bottom
 
-		scr.addstr(45,0,"Events Avail:"+str(eventsAvail));
 		#Key Capture Behavior	
 		keyPress = scr.getch();
 		if(keyPress == curses.KEY_DOWN):
