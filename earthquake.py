@@ -106,8 +106,11 @@ class earthquake:
 				scr.addstr(count,26,'QB', curses.color_pair(5));
 			elif(self.type == 'explosion'):
 				scr.addstr(count,26,'EX', curses.color_pair(5));
+			elif(self.type == 'mine collapse'):
+				scr.addstr(count,26,'MC', curses.color_pair(2));
 			else:
 				scr.addstr(count,26,'UK', curses.color_pair(5));
+				#scr.addstr(count,26,self.type, curses.color_pair(5));
 			#Tsunami
 			if(self.tsunami == 1):
 				scr.addstr(count,29,"TSUNAMI",curses.color_pair(11) | curses.A_BLINK);
