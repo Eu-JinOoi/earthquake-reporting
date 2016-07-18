@@ -57,6 +57,7 @@ def scheduler(scr,args):
 	#Index Variables
 	topIndex = 0;
 	botIndex = 0;
+	maxDisplyed = 0;
 
 	quakeData=[];
 
@@ -69,7 +70,7 @@ def scheduler(scr,args):
 	pressNoPressMax = 100;
 
 	screenSize=scr.getmaxyx();
-	while (True):
+	while (True): # Main Loop
 		currTime=int(time.time());
 		#Fetch Data
 		if((currTime - lastTime) > interval):
@@ -86,7 +87,6 @@ def scheduler(scr,args):
 		scr.addstr(0,26,"DOWN Arrow Pressed ("+str(downCount)+")");
 		scr.addstr(0,53,"UP Arrow Pressed ("+str(upCount)+")");
 		scr.addstr(0,77,"Screen Height:"+str(screenSize[0]));
-		
 
 		#Check on Screen Size
 		curses.update_lines_cols();
@@ -141,7 +141,6 @@ def scheduler(scr,args):
 			topIndex -= temp;
 		#Print the quake list
 		quakeList.display(scr,args,topIndex,botIndex,screenSize[0]);
-		#scr.addstr(screenSize[0]-1,0,"Updated: " + str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')));
 		scr.addstr(screenSize[0]-1,0,"Updated: " + str(datetime.datetime.fromtimestamp(lastTime).strftime('%Y-%m-%d %H:%M:%S')));
 		scr.addstr(screenSize[0]-1,30,'Events: '+str(quakeList.events()));
 		scr.addstr(screenSize[0]-1,45,"Press Loops:" + str(pressLoops));
