@@ -9,10 +9,12 @@ class earthquakeList:
 	quakeArray = [];	
 	idArray = [];
 	invalid = True;
+	filteredNum = 0;
 
 	#Arg Stuff
 	tsunami = False;
 	limit = math.inf;
+	minmag = 0;
 
 
 	def __init__(self,quakeJSON):
@@ -33,11 +35,19 @@ class earthquakeList:
 
 	def events(self):
 		return len(self.quakeArray);
+
+	#Function: parseArgs
+	#Description: Parses the arguments and returns the number of events in the array that match the criteria
 	def parseArgs(self, args):
 		if(args.tsunami == True):
 			this.tsunami = True;
 		if(args.limit > 0):
 			this.limit = args.limit;
+		self.minmag = args.minmag;
+		for quake in self.quakeArray:
+			if(quake.isValidQuake() and self.minmag <= quake.magnitude and ((self.tsunami == True and quake.tsunami == True) or self.tsunami == False)):
+				self.filteredNum += 1;
+		return self.filteredNum;
 			
 	def display(self,scr,args,topIndex,botIndex,windowHeight):
 		if(self.invalid):
@@ -54,9 +64,14 @@ class earthquakeList:
 		positionIndex = topIndex
 		if(botIndex>=len(self.quakeArray)):
 			botIndex=len(self.quakeArray);
-		scr.addstr(21,0,"Events: "+ str(self.events()));
+		#scr.addstr(21,0,"Events: "+ str(self.events()));
 		firstRelevant = -1;
+		eventsDisplayed = 0;
 		while(True):
+
+			#scr.addstr(23,0,"Index ("+str(positionIndex)+")");
+			#scr.refresh();
+			#time.sleep(15);
 			#if(count >= args.limit or count >= maxQuakes or positionIndex >= self.events()):
 			if(count >= maxQuakes or positionIndex >= self.events()):
 			#	scr.addstr(20,0,"Breaking on count = "+str(count)+" and positionIndex "+str(positionIndex));
@@ -68,6 +83,7 @@ class earthquakeList:
 				if(firstRelevant < 0):
 					firstRelevant = positionIndex;
 				self.quakeArray[positionIndex].curseQuake(scr,count+1);
+				eventsDisplayed += 1
 				count += 1;
 			positionIndex += 1;
 
@@ -80,5 +96,5 @@ class earthquakeList:
 
 		#This will return the index of the first relevant entry. 
 		#This should help with scrolling through event when a filter is applied. 	
-		return firstRelevant;
+		return firstRelevant, eventsDisplayed;
 			

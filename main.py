@@ -60,6 +60,12 @@ def scheduler(scr,args):
 	maxDisplyed = 0;
 
 	quakeData=[];
+	#limit
+	limit=args.limit
+	if(limit < 0):
+		limit=math.inf;
+	eventsDisplayed = -1;
+	eventsAvail = -1;
 
 	#Long Press Functionality
 	pressLoops = 0;
@@ -71,35 +77,35 @@ def scheduler(scr,args):
 
 	screenSize=scr.getmaxyx();
 	while (True): # Main Loop
-		currTime=int(time.time());
+		currTime = int(time.time());
 		#Fetch Data
 		if((currTime - lastTime) > interval):
-			lastTime=int(time.time());
-			quakeData=fetchData(args,scr);
+			lastTime = int(time.time());
+			quakeData = fetchData(args,scr);
 			#Populate the Quake List
-			quakeList=earthquakeList(quakeData);	
-			curses.beep();
+			quakeList = earthquakeList(quakeData);	
+			eventsAvail = quakeList.parseArgs(args);
+			scr.erase();
+		#	curses.beep();
 	
 		scr.move(0,0);
 		scr.clrtoeol();
 		scr.addstr(0,0,"Top Index:"+str(topIndex));
-		scr.addstr(0,13,"Bot Index:"+str(botIndex));
-		scr.addstr(0,26,"DOWN Arrow Pressed ("+str(downCount)+")");
-		scr.addstr(0,53,"UP Arrow Pressed ("+str(upCount)+")");
-		scr.addstr(0,77,"Screen Height:"+str(screenSize[0]));
+		scr.addstr(0,14,"Bot Index:"+str(botIndex));
+		scr.addstr(0,28,"DOWN Arrow Pressed ("+str(downCount)+")");
+		scr.addstr(0,56,"UP Arrow Pressed ("+str(upCount)+")");
+		scr.addstr(0,81,"Screen Height:"+str(screenSize[0]));
 
 		#Check on Screen Size
 		curses.update_lines_cols();
-		#if(currTime - lastScreenRefresh > 2):
 		screenSize=scr.getmaxyx();
 		scr.resize(screenSize[0],screenSize[1]);
 		#botIndex=topIndex+(screenSize[0] if screenSize[0]<args.limit and args.limit>0 else args.limit)-2;
 		botIndex=topIndex+screenSize[0];# -1 so that there is one row available at the bottom
 
-
+		scr.addstr(45,0,"Events Avail:"+str(eventsAvail));
 		#Key Capture Behavior	
 		keyPress = scr.getch();
-		scr.addstr(0,0,str(curses.KEY_EOL));
 		if(keyPress == curses.KEY_DOWN):
 			pressLoops += 1;
 			pressNoPressLoops = 0;
@@ -107,7 +113,7 @@ def scheduler(scr,args):
 				pressStep = pressStepFF;
 			scr.erase();
 			downCount+=1;
-			if(botIndex >= quakeList.events()):
+			if(botIndex > eventsAvail):# or (quakeList.events()< args.limit and  quakeList.events() < screenSize[0]-2):
 				curses.beep();
 			else:
 				topIndex += pressStep;
@@ -135,16 +141,20 @@ def scheduler(scr,args):
 			if(pressNoPressLoops > pressNoPressMax):
 				pressLoops = 0;
 				pressStep = 1;
+
 		#This is to make sure that the speed step won't go out of bounds
-		if(botIndex > quakeList.events()):
-			temp = botIndex - quakeList.events();
-			topIndex -= temp;
+		#if(botIndex > quakeList.events()):
+		#	temp = botIndex - quakeList.events();
+		#	topIndex -= temp;
+
 		#Print the quake list
-		topIndex = quakeList.display(scr,args,topIndex,botIndex,screenSize[0]);
+		displayValues = quakeList.display(scr,args,topIndex,botIndex,screenSize[0]);
+		#topIndex = displayValues[0];
+		eventsDisplayed = displayValues[1];	
 		scr.addstr(screenSize[0]-1,0,"Updated: " + str(datetime.datetime.fromtimestamp(lastTime).strftime('%Y-%m-%d %H:%M:%S')));
-		scr.addstr(screenSize[0]-1,30,'Events: '+str(quakeList.events()));
-		scr.addstr(screenSize[0]-1,45,"Press Loops:" + str(pressLoops));
-		scr.addstr(screenSize[0]-1,62,"PressStep: "+ str(pressStep));
+		scr.addstr(screenSize[0]-1,29,'Events: '+str(quakeList.events()));
+		#scr.addstr(screenSize[0]-1,45,"Press Loops:" + str(pressLoops));
+		#scr.addstr(screenSize[0]-1,62,"PressStep: "+ str(pressStep));
 		#Refresh the Page
 		scr.refresh();
 	
@@ -164,20 +174,14 @@ def fetchData(args,scr):
 		url='http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson';
 	else: #Set not specified or specified incorrectly
 	 	return args.range;
-	#curlCount=0;
-	#connectionRetries=0;
 	#requestSize=0;
 	try:
 		r = requests.get(url);
-	#	connectionRetries=0;
 		#requestSize+=int(len(r.content));
-	#	curlCount+=1;
 		data = r.json()
-	#	scr.addstr(4,0,"Received "+str(len(data))+" records from USGS.");
 		return data;
 	except:
 		scr.addstr(4,0,"Connection to USGS failed.");
-	#	connectionRetries+=1;
 
 #_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 #Our Main Program

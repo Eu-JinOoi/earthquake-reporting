@@ -93,7 +93,7 @@ class earthquake:
 	def curseQuake(self,scr,count):
 		earthquake.registerColors();
 		if(self.magnitude!=None):
-			scr.addstr(count,95,str(count));
+			#scr.addstr(count,95,str(count));
 			#Magnitude
 			cp = self.magToColor();
 			scr.addstr(count,0,"{:5}".format(str(self.magnitude)),curses.color_pair(cp));
@@ -120,7 +120,8 @@ class earthquake:
 			scr.addstr(count,37,str(self.place));
 			#Event ID
 			#if(args.debug):	
-			#	scr.addstr(count,100,self.id);
+			#scr.addstr(count,100,self.id);
+
 	def registerColors():
 		curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_GREEN);#0-3
 		curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_YELLOW);#4-5
