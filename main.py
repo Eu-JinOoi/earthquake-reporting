@@ -39,6 +39,7 @@ def formatSize(size,unitPos):
 		size=size/1024;	
 		retSize,type=formatSize(size,unitPos+1);
 		return (retSize,type);
+#def getInput():
 
 def scheduler(scr,args):
 	#Setup the screen
@@ -86,15 +87,14 @@ def scheduler(scr,args):
 			quakeList = earthquakeList(quakeData);	
 			eventsAvail = quakeList.parseArgs(args);
 			scr.erase();
-		#	curses.beep();
 	
 		scr.move(0,0);
 		scr.clrtoeol();
-		scr.addstr(0,0,"Top Index:"+str(topIndex));
-		scr.addstr(0,14,"Bot Index:"+str(botIndex));
-		scr.addstr(0,28,"DOWN Arrow Pressed ("+str(downCount)+")");
-		scr.addstr(0,56,"UP Arrow Pressed ("+str(upCount)+")");
-		scr.addstr(0,81,"Screen Height:"+str(screenSize[0]));
+		#scr.addstr(0,0,"Top Index:"+str(topIndex));
+		#scr.addstr(0,14,"Bot Index:"+str(botIndex));
+		#scr.addstr(0,28,"DOWN Arrow Pressed ("+str(downCount)+")");
+		#scr.addstr(0,56,"UP Arrow Pressed ("+str(upCount)+")");
+		#scr.addstr(0,81,"Screen Height:"+str(screenSize[0]));
 
 		#Check on Screen Size
 		curses.update_lines_cols();
@@ -102,6 +102,9 @@ def scheduler(scr,args):
 		scr.resize(screenSize[0],screenSize[1]);
 		#botIndex=topIndex+(screenSize[0] if screenSize[0]<args.limit and args.limit>0 else args.limit)-2;
 		botIndex=topIndex+screenSize[0];# -1 so that there is one row available at the bottom
+
+		#Info Bar
+		scr.addstr(0,0,"{:}".format("Earthquake Data - Data Source: USGS"),curses.A_REVERSE);
 
 		#Key Capture Behavior	
 		keyPress = scr.getch();
@@ -133,6 +136,7 @@ def scheduler(scr,args):
 		elif(keyPress == ord('t') or keyPress == ord('T')):
 			topIndex = 0;
 			botIndex=topIndex+screenSize[0];# -1 so that there is one row available at the bottom
+			scr.erase();
 		elif(keyPress == ord('q') or keyPress == ord('Q')):
 			return;
 		elif(keyPress == -1):
@@ -150,10 +154,15 @@ def scheduler(scr,args):
 		displayValues = quakeList.display(scr,args,topIndex,botIndex,screenSize[0]);
 		#topIndex = displayValues[0];
 		eventsDisplayed = displayValues[1];	
-		scr.addstr(screenSize[0]-1,0,"Updated: " + str(datetime.datetime.fromtimestamp(lastTime).strftime('%Y-%m-%d %H:%M:%S')));
-		scr.addstr(screenSize[0]-1,29,'Events: '+str(quakeList.events()));
+		scr.addstr(screenSize[0]-2,0,"Updated: " + str(datetime.datetime.fromtimestamp(lastTime).strftime('%Y-%m-%d %H:%M:%S')));
+		scr.addstr(screenSize[0]-2,29,'Events: '+str(quakeList.events()));
 		#scr.addstr(screenSize[0]-1,45,"Press Loops:" + str(pressLoops));
 		#scr.addstr(screenSize[0]-1,62,"PressStep: "+ str(pressStep));
+		
+		#Bottom Bar
+		#scr.addstr(screenSize[0]-1,0,"Test", curses.A_REVERSE());	
+
+
 		#Refresh the Page
 		scr.refresh();
 	

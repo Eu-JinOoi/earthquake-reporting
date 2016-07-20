@@ -59,7 +59,7 @@ class earthquakeList:
 		if(limit <= 0):
 			limit = math.inf;
 		minMag = args.minmag;
-		maxQuakes = windowHeight-2;	
+		maxQuakes = windowHeight-3;	
 		count = 0
 		positionIndex = topIndex
 		if(botIndex>=len(self.quakeArray)):
