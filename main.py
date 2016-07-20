@@ -154,7 +154,10 @@ def scheduler(scr,args):
 		displayValues = quakeList.display(scr,args,topIndex,botIndex,screenSize[0]);
 		#topIndex = displayValues[0];
 		eventsDisplayed = displayValues[1];	
-		scr.addstr(screenSize[0]-2,0,"Updated: " + str(datetime.datetime.fromtimestamp(lastTime).strftime('%Y-%m-%d %H:%M:%S')));
+		if(int(time.time()) - int(lastTime) < 5):
+			scr.addstr(screenSize[0]-2,0,"Updated: " + str(datetime.datetime.fromtimestamp(lastTime).strftime('%Y-%m-%d %H:%M:%S')),curses.A_BLINK);
+		else:
+			scr.addstr(screenSize[0]-2,0,"Updated: " + str(datetime.datetime.fromtimestamp(lastTime).strftime('%Y-%m-%d %H:%M:%S')));
 		scr.addstr(screenSize[0]-2,29,'Events: '+str(quakeList.events()));
 		#scr.addstr(screenSize[0]-1,45,"Press Loops:" + str(pressLoops));
 		#scr.addstr(screenSize[0]-1,62,"PressStep: "+ str(pressStep));
