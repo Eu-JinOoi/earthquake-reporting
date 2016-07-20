@@ -28,10 +28,12 @@ class earthquakeList:
 				self.quakeArray.append(eq);
 				self.idArray.append(eq.getId());
 		else:
+			offset=0;
 			for quake in quakeJSON['features']:
 				eq = earthquake(quake);
 				if((eq.getId() in self.idArray) == False):
-					self.quakeArray.insert(0,eq);	
+					self.quakeArray.insert(offset,eq);	
+					offset += 1;
 
 	def events(self):
 		return len(self.quakeArray);
